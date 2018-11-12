@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='avbroadcast',
-      version='0.0.0',
+      version='0.1.0',
       description='avbroadcast - republish media streams for mass consumption',
       long_description='avbroadcast - republish media streams for mass consumption',
       license="AGPL 3, EUPL 1.2",
