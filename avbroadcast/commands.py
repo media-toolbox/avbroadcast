@@ -17,10 +17,13 @@ APP_NAME = 'avbroadcast'
 def run():
     """
     Usage:
-        avbroadcast ingest --stream=<stream> --base-port=<base-port>
+        {program} ingest --stream=<stream> --base-port=<base-port> --debug
         {program} info
         {program} --version
         {program} (-h | --help)
+
+    Options:
+        --debug     Increase verbosity
 
     Examples:
 
