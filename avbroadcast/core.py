@@ -14,35 +14,43 @@ class RtmpHlsPipeline:
     presets = [
         {
             'resolution': 1080,
-            'bandwidth': '-b:v 4000k -maxrate 6000k -bufsize 4800k',
+            'ffmpeg_bandwidth': '-b:v 4000k -maxrate 6000k -bufsize 4800k',
             'target': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 240,
-            'bandwidth': '-b:v  450k -maxrate  675k -bufsize  540k',
+            'ffmpeg_bandwidth': '-b:v  450k -maxrate  675k -bufsize  540k',
             'target': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 360,
-            'bandwidth': '-b:v  990k -maxrate 1485k -bufsize 1188k',
+            'ffmpeg_bandwidth': '-b:v  990k -maxrate 1485k -bufsize 1188k',
             'target': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 480,
-            'bandwidth': '-b:v 1600k -maxrate 2400k -bufsize 1920k',
+            'ffmpeg_bandwidth': '-b:v 1600k -maxrate 2400k -bufsize 1920k',
             'target': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 720,
-            'bandwidth': '-b:v 2000k -maxrate 3000k -bufsize 2400k',
+            'ffmpeg_bandwidth': '-b:v 2000k -maxrate 3000k -bufsize 2400k',
             'target': 'udp://127.0.0.1:{port}',
         },
     ]
 
+    def stream_descriptions(self, base_port):
+        for preset in self.presets:
+
+            stream = preset.copy()
+            port = base_port + preset['resolution']
+            stream['target'] = stream['target'].format(port=port)
+
+            yield stream
+
     def ingest(self, stream, base_port):
-        progress_file = make_progress_filename(stream)
-        decoder = StreamDecoder(base_port=base_port, progress_file=progress_file)
-        decoder.run(source=stream, presets=self.presets)
+        decoder = StreamDecoder(source=stream, base_port=base_port)
+        decoder.run(presets=self.stream_descriptions(base_port))
 
 
 class StreamDecoder:
@@ -65,33 +73,33 @@ class StreamDecoder:
         -map_metadata -1 -pix_fmt yuv420p -vcodec libx264 -preset:v superfast \\
         -force_key_frames "expr:gte(t,n_forced*2)" \\
         -x264opts ref=1:no-cabac=1:bframes=0:b-pyramid=0:scenecut=0 -sc_threshold 0 \\
-        -profile:v main {bandwidth} -level 31 \\
+        -profile:v main {ffmpeg_bandwidth} -level 31 \\
         -filter:a "pan=stereo|c0=c0|c1=c0" \\
         -f mpegts "{target}" -map 0:v
     """
 
-    def __init__(self, base_port=None, progress_file=None):
+    def __init__(self, source=None, base_port=None):
+        self.source = source
         self.base_port = base_port
-        self.progress_file = progress_file
+        self.progress_file = make_progress_filename(source)
 
-    def run(self, source, presets):
+    def get_command(self, presets):
 
         ffmpeg_base = sanitize_text(self.ffmpeg_base)
         data = {}
-        data['source'] = source
+        data['source'] = self.source
         data['progress_file'] = self.progress_file
         ffmpeg_base = ffmpeg_base.format(**data)
         parts = [ffmpeg_base]
 
         for preset in presets:
-            port = self.base_port + preset['resolution']
-
-            data = preset.copy()
-            data['port'] = port
-
-            stream_part = sanitize_text(self.ffmpeg_video_stream).format(**data).format(**data)
+            stream_part = sanitize_text(self.ffmpeg_video_stream).format(**preset)
             parts.append(stream_part)
 
         command = ' \\\n\\\n'.join(parts)
+        return command
+
+    def run(self, presets):
+        command = self.get_command(presets)
         logger.debug("Running ffmpeg command:\n%s", command)
         os.system(command)
