@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 
 setup(name='avbroadcast',
       version='0.0.0',
-      description='republish audio/video streams for mass consumption',
-      long_description='republish audio/video streams for mass consumption',
+      description='avbroadcast - republish media streams for mass consumption',
+      long_description='avbroadcast - republish media streams for mass consumption',
       license="AGPL 3, EUPL 1.2",
       classifiers=[
         "Programming Language :: Python",
