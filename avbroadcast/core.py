@@ -15,27 +15,27 @@ class RtmpHlsPipeline:
         {
             'resolution': 1080,
             'ffmpeg_bandwidth': '-b:v 4000k -maxrate 6000k -bufsize 4800k',
-            'target': 'udp://127.0.0.1:{port}',
+            'address': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 240,
             'ffmpeg_bandwidth': '-b:v  450k -maxrate  675k -bufsize  540k',
-            'target': 'udp://127.0.0.1:{port}',
+            'address': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 360,
             'ffmpeg_bandwidth': '-b:v  990k -maxrate 1485k -bufsize 1188k',
-            'target': 'udp://127.0.0.1:{port}',
+            'address': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 480,
             'ffmpeg_bandwidth': '-b:v 1600k -maxrate 2400k -bufsize 1920k',
-            'target': 'udp://127.0.0.1:{port}',
+            'address': 'udp://127.0.0.1:{port}',
         },
         {
             'resolution': 720,
             'ffmpeg_bandwidth': '-b:v 2000k -maxrate 3000k -bufsize 2400k',
-            'target': 'udp://127.0.0.1:{port}',
+            'address': 'udp://127.0.0.1:{port}',
         },
     ]
 
@@ -44,16 +44,20 @@ class RtmpHlsPipeline:
 
             stream = preset.copy()
             port = base_port + preset['resolution']
-            stream['target'] = stream['target'].format(port=port)
+            stream['address'] = stream['address'].format(port=port)
 
             yield stream
 
     def ingest(self, stream, base_port):
-        decoder = StreamDecoder(source=stream, base_port=base_port)
+        decoder = InputStream(source=stream, base_port=base_port)
         decoder.run(presets=self.stream_descriptions(base_port))
 
+    def publish(self, name, base_port, upload_url):
+        packager = OutputPackager(name=name, base_port=base_port, upload_url=upload_url)
+        packager.run(presets=self.stream_descriptions(base_port))
 
-class StreamDecoder:
+
+class InputStream:
 
     # TODO: -report
 
@@ -67,7 +71,7 @@ class StreamDecoder:
         -acodec aac -ac 2 -ar 48000 -b:a 128k
     """
 
-    # {resolution}p video is streamed to {target}
+    # {resolution}p video is streamed to {address}
     ffmpeg_video_stream = """
         -vf scale="trunc(oh*a/2)*2:{resolution}" \\
         -map_metadata -1 -pix_fmt yuv420p -vcodec libx264 -preset:v superfast \\
@@ -75,7 +79,7 @@ class StreamDecoder:
         -x264opts ref=1:no-cabac=1:bframes=0:b-pyramid=0:scenecut=0 -sc_threshold 0 \\
         -profile:v main {ffmpeg_bandwidth} -level 31 \\
         -filter:a "pan=stereo|c0=c0|c1=c0" \\
-        -f mpegts "{target}" -map 0:v
+        -f mpegts "{address}" -map 0:v
     """
 
     def __init__(self, source=None, base_port=None):
@@ -102,4 +106,67 @@ class StreamDecoder:
     def run(self, presets):
         command = self.get_command(presets)
         logger.debug("Running ffmpeg command:\n%s", command)
+        os.system(command)
+
+
+class OutputPackager:
+
+    packager_base = """
+        packager \\
+        --io_block_size 65536 --fragment_duration 2 --segment_duration 2 \\
+        --time_shift_buffer_depth 3600 --preserved_segments_outside_live_window 7200 \\
+        --hls_master_playlist_output "{name}.m3u8" \\
+        --hls_playlist_type LIVE \\
+        --http_upload_url "{upload_url}" \\
+        --vmodule=http_file=1
+    """
+
+    packager_audio_stream = """
+        "input={address}?reuse=1,stream=audio,segment_template={name}-audio-\$Number%04d\$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
+    """
+
+    packager_video_stream = """
+        "input={address}?reuse=1,stream=video,segment_template={name}-video-{resolution}-\$Number%04d\$.ts,playlist_name={name}-video-{resolution}.m3u8"
+    """
+
+    newline_token = ' \\\n'
+
+    def __init__(self, name=None, base_port=None, upload_url=None):
+        self.name = name
+        self.base_port = base_port
+        self.upload_url = upload_url
+
+    def get_command(self, presets):
+        packager_base = sanitize_text(self.packager_base)
+
+        data = {}
+        data['name'] = self.name
+        data['upload_url'] = self.upload_url
+        packager_base = packager_base.format(**data)
+
+        presets = list(presets)
+        stream_parts = []
+
+        # 1. Add audio stream from first channel
+        first_preset = presets[0]
+        stream_part = sanitize_text(self.packager_audio_stream).format(**data, **first_preset)
+        stream_parts.append(stream_part)
+
+        # 2. Add all video stream channels
+        for preset in presets:
+            stream_part = sanitize_text(self.packager_video_stream).format(**data, **preset)
+            stream_parts.append(stream_part)
+
+        all_streams = self.join_command(stream_parts)
+
+        parts = [packager_base, all_streams]
+        command = self.join_command(parts)
+        return command
+
+    def join_command(self, parts):
+        return self.newline_token.join(parts)
+
+    def run(self, presets):
+        command = self.get_command(presets)
+        logger.debug("Running packager command:\n%s", command)
         os.system(command)

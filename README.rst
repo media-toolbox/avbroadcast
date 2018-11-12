@@ -42,12 +42,18 @@ Please refer to the `virtualenv`_ page about further guidelines how to install a
 
 Usage
 =====
-Ingest Big Buck Bunny stream in 450p::
+Ingest media stream::
 
     avbroadcast ingest \
         --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" \
         --base-port=50000
 
+Package using HLS and publish to HTTP server::
+
+    avbroadcast publish \
+        --name="bigbuckbunny" \
+        --base-port=50000 \
+        --upload-url="http://localhost:6767/hls-live"
 
 
 *******************
