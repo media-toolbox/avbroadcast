@@ -18,11 +18,26 @@ avbroadcast
 *****
 About
 *****
-``avbroadcast`` helps republishing media streams for mass consumption.
-It is a wrapper around the fine ffmpeg_ and packager_ programs.
+``avbroadcast`` can republish media streams for mass consumption.
+It is a wrapper around the fine ffmpeg_ and packager_ programs,
+so it is standing on the shoulders of giants.
 
 .. _ffmpeg: https://ffmpeg.org/
 .. _packager: https://github.com/google/shaka-packager/
+
+
+.. attention::
+
+    Please note the functionality is based on the new `HTTP upload feature`_
+    of Shaka Packager which is a work in progress. It is currently living
+    in the `http-upload branch`_ and is being tracked at `issue #149`_.
+
+    Please use the beta-build `packager-linux`_ for your own experiments.
+
+.. _HTTP upload feature: https://github.com/3QSDN/shaka-packager/blob/http-upload/docs/source/tutorials/http_upload.rst
+.. _issue #149: https://github.com/google/shaka-packager/issues/149
+.. _http-upload branch: https://github.com/3QSDN/shaka-packager/tree/http-upload
+.. _packager-linux: https://packages.elmyra.de/3q/foss/packager-linux
 
 
 ***************
