@@ -42,7 +42,9 @@ setup(name='avbroadcast',
       },
       zip_safe=False,
       test_suite='avbroadcast.test',
-      install_requires=[],
+      install_requires=[
+          'docopt==0.6.2',
+      ],
       dependency_links=[
       ],
       entry_points={
