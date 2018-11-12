@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
 from setuptools import setup, find_packages
+
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='avbroadcast',
       version='0.1.0',
       description='avbroadcast - republish media streams for mass consumption',
-      long_description='avbroadcast - republish media streams for mass consumption',
+      long_description=README,
       license="AGPL 3, EUPL 1.2",
       classifiers=[
         "Programming Language :: Python",
@@ -24,6 +28,10 @@ setup(name='avbroadcast',
         "Topic :: Internet",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: Conversion",
+        "Topic :: Multimedia :: Video",
+        "Topic :: Multimedia :: Video :: Conversion",
         "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
         "Topic :: Software Development :: Libraries",
         "Topic :: System :: Archiving",
