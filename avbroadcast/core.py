@@ -115,18 +115,20 @@ class OutputPackager:
         packager \\
         --io_block_size 65536 --fragment_duration 2 --segment_duration 2 \\
         --time_shift_buffer_depth 3600 --preserved_segments_outside_live_window 7200 \\
-        --hls_master_playlist_output "{name}.m3u8" \\
+        --hls_master_playlist_output "{upload_url}/{name}.m3u8" \\
         --hls_playlist_type LIVE \\
-        --http_upload_url "{upload_url}" \\
-        --vmodule=http_file=1
+        --vmodule=file=1,http_file=1,media_playlist=1,hls_notify_muxer_listener=1,ts_segmenter=1,ts_writer=1
     """
 
+    # TODO: Optionally add option "--libcurl_verbosity=3"
+    # TODO: Optionally add "--vmodule" options "buffer_writer=1", "master_playlist=1" and "packed_audio_writer=1"
+
     packager_audio_stream = """
-        "input={address}?reuse=1,stream=audio,segment_template={name}-audio-\$Number%04d\$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
+        "input={address}?reuse=1,stream=audio,segment_template={upload_url}/{name}-audio-\$Number%04d\$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
     """
 
     packager_video_stream = """
-        "input={address}?reuse=1,stream=video,segment_template={name}-video-{resolution}-\$Number%04d\$.ts,playlist_name={name}-video-{resolution}.m3u8"
+        "input={address}?reuse=1,stream=video,segment_template={upload_url}/{name}-video-{resolution}-\$Number%04d\$.ts,playlist_name={name}-video-{resolution}.m3u8"
     """
 
     newline_token = ' \\\n'
