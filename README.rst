@@ -1,4 +1,4 @@
-.. image:: https://img.shields.io/badge/Python-2.7,%203.6-green.svg
+.. image:: https://img.shields.io/badge/Python-3.5,%203.6,%203.7,%203.8-green.svg
     :target: https://pypi.org/project/avbroadcast/
 
 .. image:: https://img.shields.io/pypi/v/avbroadcast.svg
@@ -78,7 +78,7 @@ Project information
 The code and documentation live on `GitHub <https://github.com/daq-tools/avbroadcast>`_,
 the Python package is published to `PyPI <https://pypi.org/project/avbroadcast/>`_.
 
-The software has been tested on Python 2.7 and Python 3.6.
+The software has been tested on Python 3.5 and Python 3.7.
 
 Contributing
 ============
