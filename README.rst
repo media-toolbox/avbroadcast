@@ -18,7 +18,7 @@ avbroadcast
 *****
 About
 *****
-``avbroadcast`` can republish media streams for mass consumption.
+``avbroadcast`` republishes media streams for mass consumption.
 It is a wrapper around the fine ffmpeg_ and packager_ programs,
 so it is standing on the shoulders of giants.
 
@@ -28,16 +28,17 @@ so it is standing on the shoulders of giants.
 
 .. attention::
 
-    Please note the functionality is based on the new `HTTP upload feature`_
+    Please note some of its functionality is based on the new `HTTP upload feature`_
     of Shaka Packager which is a work in progress. It is currently living
     in the `http-upload branch`_ and is being tracked at `issue #149`_.
 
-    Please use the beta-build `packager-linux`_ for your own experiments.
+    Please use the beta-build `packager-linux`_ for your own experiments,
+    which is also available through the corresponding Docker baseline image.
 
 .. _HTTP upload feature: https://github.com/3QSDN/shaka-packager/blob/http-upload/docs/source/tutorials/http_upload.rst
 .. _issue #149: https://github.com/google/shaka-packager/issues/149
 .. _http-upload branch: https://github.com/3QSDN/shaka-packager/tree/http-upload
-.. _packager-linux: https://packages.elmyra.de/3q/foss/packager-linux
+.. _packager-linux: https://packages.elmyra.de/3q/foss/packager-linux-http-upload
 
 
 ***************
@@ -72,6 +73,14 @@ Package using HLS and publish to HTTP server::
         --target="http://localhost:6767/hls-live" \
         --verbose
 
+Altogether now::
+
+    avbroadcast io \
+        --name="bigbuckbunny" \
+        --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" \
+        --target="http://localhost:6767/hls-live" \
+        --verbose
+
 Watch output directory::
 
     avbroadcast watch --path=/var/spool/hls-local
@@ -79,17 +88,37 @@ Watch output directory::
 
 Usage with Docker
 =================
+Build Docker image ``mediatools/avbroadcast:analyzer``::
+
+    build-docker-image
+
 ::
 
     # Use avbroadcast shipped with Docker image.
-    alias avbroadcast='docker run --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+    alias avbroadcast='docker run --name avb --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
 
     # Use avbroadcast from working tree.
-    #alias avbroadcast='docker run --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+    #alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
 
 Run in Docker container::
 
     avbroadcast --version
+
+Attach to running transcoder::
+
+    docker exec -it avb /bin/bash
+
+
+Usage with tmux
+===============
+::
+
+    avbroadcast ... --tmux --analyze
+
+Detach from tmux::
+
+    CTRL+B, D
+
 
 
 *******************
