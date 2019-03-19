@@ -8,6 +8,7 @@ from avbroadcast import __version__
 
 from avbroadcast.core import InputStream, RtmpHlsPipeline
 from avbroadcast.util import make_progress_filename, normalize_options, boot_logging
+from avbroadcast.watch import watch_filesystem
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ def run():
     Usage:
         {program} ingest --stream=<stream> --base-port=<base-port> [--verbose]
         {program} publish --name=<name> --base-port=<base-port> --target=<target> [--verbose]
+        {program} watch --path=<path>
         {program} info
         {program} --version
         {program} (-h | --help)
@@ -38,6 +40,10 @@ def run():
             --name="bigbuckbunny" \
             --base-port=50000 \
             --target="/var/spool/hls-local"
+
+        # Watch output directory
+        avbroadcast watch --path=/var/spool/hls-local
+
 
     """
 
@@ -60,3 +66,6 @@ def run():
     if options['publish']:
         pipeline.publish(options['name'], int(options['base-port']), options['target'])
 
+    if options['watch']:
+        # TODO: Propagate resolutions and interval
+        watch_filesystem(options['path'])

@@ -69,6 +69,11 @@ Package using HLS and publish to HTTP server::
         --name="bigbuckbunny" \
         --base-port=50000 \
         --target="http://localhost:6767/hls-live" \
+Watch output directory::
+
+    avbroadcast watch --path=/var/spool/hls-local
+
+
 Usage with Docker
 =================
 ::
