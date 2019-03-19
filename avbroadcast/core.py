@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 # avbroadcast - republish media streams for mass consumption
 # (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
-import os
+import shlex
 import logging
+import subprocess
+from threading import Thread
 
 from avbroadcast.util import sanitize_text, make_progress_filename
 
@@ -50,11 +52,32 @@ class RtmpHlsPipeline:
 
     def ingest(self, stream, base_port):
         decoder = InputStream(source=stream, base_port=base_port)
-        decoder.run(presets=self.stream_descriptions(base_port))
+        command = decoder.configure(presets=self.stream_descriptions(base_port))
+
+        pc = PipelineCommand(command)
+        pc.start()
 
     def publish(self, name, base_port, upload_url):
         packager = OutputPackager(name=name, base_port=base_port, upload_url=upload_url)
-        packager.run(presets=self.stream_descriptions(base_port))
+        command = packager.configure(presets=self.stream_descriptions(base_port))
+
+        pc = PipelineCommand(command)
+        pc.start()
+
+
+class PipelineCommand(Thread):
+
+    def __init__(self, command):
+        super().__init__()
+        self.command = command
+
+    def run(self):
+        cmd = list(map(str.strip, shlex.split(self.command)))
+        #logger.debug(cmd)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+        with process as proc:
+            logger.write(proc.stdout.read())
 
 
 class InputStream:
@@ -103,10 +126,21 @@ class InputStream:
         command = ' \\\n\\\n'.join(parts)
         return command
 
-    def run(self, presets):
+    def configure(self, presets):
         command = self.get_command(presets)
         logger.debug("Running ffmpeg command:\n%s", command)
-        os.system(command)
+
+        #command_suffix = '1> {logfile} 2>&1'.format(logfile='/$TMPDIR/avbroadcast_ffmpeg_6028_2019-03-18_19-08-05.log')
+        #command += command_suffix
+
+        return command
+
+        #command_suffix += ' &'
+        #os.system(command)
+        #os.execlp(command)
+
+        #element = PipelineElement(command)
+        #print(element)
 
 
 class OutputPackager:
@@ -124,11 +158,11 @@ class OutputPackager:
     # TODO: Optionally add "--vmodule" options "buffer_writer=1", "master_playlist=1" and "packed_audio_writer=1"
 
     packager_audio_stream = """
-        "input={address}?reuse=1,stream=audio,segment_template={upload_url}/{name}-audio-\$Number%04d\$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
+        "input={address}?reuse=1,stream=audio,segment_template={upload_url}/{name}-audio-$Number%04d$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
     """
 
     packager_video_stream = """
-        "input={address}?reuse=1,stream=video,segment_template={upload_url}/{name}-video-{resolution}-\$Number%04d\$.ts,playlist_name={name}-video-{resolution}.m3u8"
+        "input={address}?reuse=1,stream=video,segment_template={upload_url}/{name}-video-{resolution}-$Number%04d$.ts,playlist_name={name}-video-{resolution}.m3u8"
     """
 
     newline_token = ' \\\n'
@@ -168,7 +202,11 @@ class OutputPackager:
     def join_command(self, parts):
         return self.newline_token.join(parts)
 
-    def run(self, presets):
+    def configure(self, presets):
         command = self.get_command(presets)
         logger.debug("Running packager command:\n%s", command)
-        os.system(command)
+
+        #command_suffix = '1> {logfile} 2>&1'.format(logfile='/$TMPDIR/avbroadcast_packager_6028_2019-03-18_19-08-05.log')
+
+        #os.system(command)
+        return command
