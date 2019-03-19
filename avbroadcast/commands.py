@@ -18,38 +18,33 @@ APP_NAME = 'avbroadcast'
 def run():
     """
     Usage:
-        {program} ingest --stream=<stream> --base-port=<base-port> [--verbose]
-        {program} publish --name=<name> --base-port=<base-port> --target=<target> [--verbose]
+        {program} ingest --stream=<stream> [--base-port=<base-port>] [--verbose]
+        {program} publish --name=<name> [--base-port=<base-port>] --target=<target> [--verbose]
+        {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose]
         {program} watch --path=<path>
         {program} info
         {program} --version
         {program} (-h | --help)
 
     Options:
-        --verbose     Increase verbosity
+        --base-port=<base-port>     Use this port as a baseline for forwarding the first UDP stream.
+                                    [default: 50000]
+        --verbose                   Increase verbosity
 
     Examples:
 
         # Ingest media stream from RTMP.
-        avbroadcast ingest \
-            --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" \
-            --base-port=50000
+        avbroadcast ingest --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" --base-port=50000
 
         # Package using HLS and publish to local file system.
-        avbroadcast publish \
-            --name="bigbuckbunny" \
-            --base-port=50000 \
-            --target="/var/spool/hls-local"
+        avbroadcast publish --name="bigbuckbunny" --base-port=50000 --target="/var/spool/hls-local"
 
         # Watch output directory
         avbroadcast watch --path=/var/spool/hls-local
 
-
         # Package using HLS and publish to HTTP server.
-        avbroadcast publish \
-            --name="bigbuckbunny" \
-            --base-port=50000 \
-            --target="http://localhost:6767/hls-live"
+        avbroadcast publish --name="bigbuckbunny" --base-port=50000 --target="http://localhost:6767/hls-live"
+
     """
 
     # Use generic commandline options schema and amend with current program name.
@@ -65,13 +60,19 @@ def run():
         options['debug'] = True
     boot_logging(options)
 
-    # Dispatch to core methods
+    # Report about runtime options.
+    logger.info(options)
+
     # Dispatch to core methods.
     pipeline = RtmpHlsPipeline()
     if options['ingest']:
         pipeline.ingest(options['stream'], int(options['base-port']))
 
     if options['publish']:
+        pipeline.publish(options['name'], int(options['base-port']), options['target'])
+
+    if options['io']:
+        pipeline.ingest(options['stream'], int(options['base-port']))
         pipeline.publish(options['name'], int(options['base-port']), options['target'])
 
     if options['watch']:
