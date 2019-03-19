@@ -18,7 +18,7 @@ def run():
     """
     Usage:
         {program} ingest --stream=<stream> --base-port=<base-port> [--verbose]
-        {program} publish --name=<name> --base-port=<base-port> --upload-url=<upload-url> [--verbose]
+        {program} publish --name=<name> --base-port=<base-port> --target=<target> [--verbose]
         {program} info
         {program} --version
         {program} (-h | --help)
@@ -37,7 +37,7 @@ def run():
         avbroadcast publish \
             --name="bigbuckbunny" \
             --base-port=50000 \
-            --upload-url="http://localhost:6767/hls-live"
+            --target="/var/spool/hls-local"
 
     """
 
@@ -58,4 +58,5 @@ def run():
         pipeline.ingest(options['stream'], int(options['base-port']))
 
     if options['publish']:
-        pipeline.publish(options['name'], int(options['base-port']), options['upload-url'])
+        pipeline.publish(options['name'], int(options['base-port']), options['target'])
+

@@ -68,7 +68,7 @@ Package using HLS and publish to HTTP server::
     avbroadcast publish \
         --name="bigbuckbunny" \
         --base-port=50000 \
-        --upload-url="http://localhost:6767/hls-live"
+        --target="http://localhost:6767/hls-live" \
 
 
 *******************
