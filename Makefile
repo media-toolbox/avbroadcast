@@ -46,3 +46,18 @@ setup-docs: setup-virtualenv
 docs-html: setup-docs
 	touch docs/index.rst
 	export SPHINXBUILD="`pwd`/$(sphinx)"; cd doc; make html
+
+
+# ------
+# Docker
+# ------
+
+build-docker-image:
+	docker build --build-arg BASE_IMAGE=avbroadcast-analyzer --tag mediatools/avbroadcast:analyzer .
+
+publish-docker-image:
+	docker tag mediatools/avbroadcast:analyzer elmyra/avbroadcast:analyzer
+	docker push elmyra/avbroadcast:analyzer
+
+enter-docker-container:
+	docker run --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer /bin/bash

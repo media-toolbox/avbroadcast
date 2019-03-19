@@ -69,6 +69,19 @@ Package using HLS and publish to HTTP server::
         --name="bigbuckbunny" \
         --base-port=50000 \
         --target="http://localhost:6767/hls-live" \
+Usage with Docker
+=================
+::
+
+    # Use avbroadcast shipped with Docker image.
+    alias avbroadcast='docker run --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+
+    # Use avbroadcast from working tree.
+    #alias avbroadcast='docker run --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+
+Run in Docker container::
+
+    avbroadcast --version
 
 
 *******************
