@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# (c) 2018 Andreas Motl <andreas.motl@elmyra.de>
+# (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
 import logging
 import os
 import re

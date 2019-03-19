@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # avbroadcast - republish media streams for mass consumption
-# (c) 2018 Andreas Motl <andreas.motl@elmyra.de>
+# (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
 import logging
 
 from docopt import docopt
@@ -30,12 +30,12 @@ def run():
 
     Examples:
 
-        # Ingest media stream
+        # Ingest media stream from RTMP.
         avbroadcast ingest \
             --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" \
             --base-port=50000
 
-        # Package using HLS and publish to HTTP server
+        # Package using HLS and publish to local file system.
         avbroadcast publish \
             --name="bigbuckbunny" \
             --base-port=50000 \
@@ -45,20 +45,28 @@ def run():
         avbroadcast watch --path=/var/spool/hls-local
 
 
+        # Package using HLS and publish to HTTP server.
+        avbroadcast publish \
+            --name="bigbuckbunny" \
+            --base-port=50000 \
+            --target="http://localhost:6767/hls-live"
     """
 
-    # Use generic commandline options schema and amend with current program name
-    commandline_schema = (run.__doc__).format(program=APP_NAME)
+    # Use generic commandline options schema and amend with current program name.
+    commandline_schema = run.__doc__.format(program=APP_NAME)
 
-    # Read commandline options
+    d = docopt(commandline_schema, version=APP_NAME + ' ' + __version__)
+
+    # Read commandline options.
     options = normalize_options(docopt(commandline_schema, version=APP_NAME + ' ' + __version__))
 
-    # Start logging subsystem
+    # Start logging subsystem.
     if options['verbose']:
         options['debug'] = True
     boot_logging(options)
 
     # Dispatch to core methods
+    # Dispatch to core methods.
     pipeline = RtmpHlsPipeline()
     if options['ingest']:
         pipeline.ingest(options['stream'], int(options['base-port']))

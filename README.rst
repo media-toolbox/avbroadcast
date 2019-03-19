@@ -61,7 +61,8 @@ Ingest media stream::
 
     avbroadcast ingest \
         --stream="rtmp://184.72.239.149/vod/mp4:bigbuckbunny_450.mp4?reuse=1" \
-        --base-port=50000
+        --base-port=50000 \
+        --verbose
 
 Package using HLS and publish to HTTP server::
 
@@ -69,6 +70,8 @@ Package using HLS and publish to HTTP server::
         --name="bigbuckbunny" \
         --base-port=50000 \
         --target="http://localhost:6767/hls-live" \
+        --verbose
+
 Watch output directory::
 
     avbroadcast watch --path=/var/spool/hls-local
@@ -108,7 +111,7 @@ Thanks in advance for your efforts, we really appreciate any help or feedback.
 
 License
 =======
-This software is copyright © 2018 The avbroadcast authors. All rights reserved.
+This software is copyright (c) 2018-2019 The avbroadcast authors. All rights reserved.
 
 It is and will always be **free and open source software**.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # avbroadcast - republish media streams for mass consumption
-# (c) 2018 Andreas Motl <andreas.motl@elmyra.de>
+# (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
 import os
 import logging
 
