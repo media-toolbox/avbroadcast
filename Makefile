@@ -59,5 +59,8 @@ publish-docker-image:
 	docker tag mediatools/avbroadcast:analyzer elmyra/avbroadcast:analyzer
 	docker push elmyra/avbroadcast:analyzer
 
+run-docker-container:
+	docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer /bin/bash
+
 enter-docker-container:
-	docker run --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer /bin/bash
+	docker exec --interactive --tty avb /bin/bash
