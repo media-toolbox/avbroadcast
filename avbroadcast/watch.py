@@ -10,9 +10,10 @@ log = logging.getLogger(__name__)
 APP_NAME = 'avbroadcast'
 
 
-def watch_filesystem(path, resolutions=None, interval=0.5):
+def watch_filesystem(path, resolutions=None, clear_screen=True, interval=0.5):
     while True:
-        os.system('clear')
+        if clear_screen:
+            os.system('clear')
         log.info('Scanning {path} each {interval} seconds.'.format(path=path, interval=interval))
 
         scan_filesystem(path, resolutions=resolutions)

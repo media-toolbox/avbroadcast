@@ -2,6 +2,8 @@
 # avbroadcast - republish media streams for mass consumption
 # (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
 import logging
+import os
+import sys
 
 from docopt import docopt
 from avbroadcast import __version__
@@ -20,7 +22,7 @@ def run():
     Usage:
         {program} ingest --stream=<stream> [--base-port=<base-port>] [--verbose]
         {program} publish --name=<name> [--base-port=<base-port>] --target=<target> [--verbose]
-        {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose]
+        {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose] [--tmux] [--analyze]
         {program} watch --path=<path>
         {program} info
         {program} --version
@@ -63,6 +65,25 @@ def run():
     # Report about runtime options.
     logger.info(options)
 
+    # tmux new -s toptop 'htop' \; split-window 'iotop' \; select-layout even-horizontal
+    # tmux attach -t avb \; split-window htop --delay=3 \; split-window -h glances --time=0.3
+    # select-pane -t0
+    if options['tmux']:
+        real = list(sys.argv)
+        real.remove('--tmux')
+        real_command = ' '.join(real)
+        #print(real_command)
+        #tmux_command = "tmux -2 new-session -s avb \; new-window -t avb '{}'".format(real_command)
+        tmux_command = "tmux new-session -s avb '{}'".format(real_command)
+
+        if options['analyze']:
+            tmux_command += ' \; split-window htop --delay=3 \; split-window -h glances --time=0.3'
+            tmux_command += ' \; select-pane -t0 \; split-window -h avbroadcast watch --path=/var/spool/hls-local'
+
+        print(tmux_command)
+        os.system(tmux_command)
+        return
+
     # Dispatch to core methods.
     pipeline = RtmpHlsPipeline()
     if options['ingest']:
@@ -78,3 +99,7 @@ def run():
     if options['watch']:
         # TODO: Propagate resolutions and interval
         watch_filesystem(options['path'])
+
+    #if options['add-watch']:
+    #    # TODO: Propagate resolutions and interval
+    #    watch_filesystem(options['target'], clear_screen=False)
