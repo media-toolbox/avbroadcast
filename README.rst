@@ -100,8 +100,8 @@ Make alias for easy usage::
     # Use avbroadcast shipped with Docker image.
     alias avbroadcast='docker run --name avb --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
 
-    # Use avbroadcast from working tree.
-    #alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
+    # Alternatively, use avbroadcast from working tree.
+    alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
 
 Pre-flight check::
 
@@ -122,10 +122,15 @@ Attach to tmux::
 
     tmux attach
 
-Detach from tmux::
+Quit pipeline either by detaching from ``tmux``::
 
     CTRL+B, D
 
+or exit each program individually by typing::
+
+    4x CTRL+C
+
+In both cases, the Docker container will stop - and also self-destroy when running with ``--rm``.
 
 
 *******************
