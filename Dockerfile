@@ -14,8 +14,9 @@ FROM jrottenberg/ffmpeg:4.0-ubuntu AS ffmpeg-runtime
 FROM ffmpeg-runtime AS avbroadcast-analyzer
 
 # Install performance analysis tools.
+# TODO: Add "psmisc" here, maybe also "python3" and "python3-pip"?
 RUN apt-get update
-RUN apt-get install -y stress htop iotop tmux glances psmisc
+RUN apt-get install -y stress htop iotop tmux glances
 
 
 # =============
@@ -33,7 +34,7 @@ ARG SHAKA_PACKAGER_DOWNLOAD_URL=https://packages.elmyra.de/3q/foss/packager-linu
 
 # Regular runtime.
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip wget nano vim
+RUN apt-get install -y python3 python3-pip wget nano vim psmisc
 
 # Install Shaka Packager.
 RUN \
