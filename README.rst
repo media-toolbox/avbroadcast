@@ -22,12 +22,6 @@ About
 It is a wrapper around the fine ffmpeg_ and packager_ programs,
 so it is standing on the shoulders of giants.
 
-
-Goals
-=====
--
-
-
 .. _ffmpeg: https://ffmpeg.org/
 .. _packager: https://github.com/google/shaka-packager/
 
@@ -94,11 +88,14 @@ Watch output directory::
 
 Usage with Docker
 =================
-Build Docker image ``mediatoolbox/avbroadcast:analyzer``::
+Build Docker image ``"mediatoolbox/avbroadcast:analyzer"``::
 
-    build-docker-image
+    make build-docker-image
 
-::
+You might want to skip this step as Docker images are already available
+at https://hub.docker.com/r/mediatoolbox/avbroadcast
+
+Make alias for easy usage::
 
     # Use avbroadcast shipped with Docker image.
     alias avbroadcast='docker run --name avb --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
@@ -106,7 +103,7 @@ Build Docker image ``mediatoolbox/avbroadcast:analyzer``::
     # Use avbroadcast from working tree.
     #alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
 
-Run in Docker container::
+Pre-flight check::
 
     avbroadcast --version
 
