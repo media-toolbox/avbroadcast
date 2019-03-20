@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 # avbroadcast - republish media streams for mass consumption
 # (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
-import logging
 import os
 import sys
-
+import logging
 from docopt import docopt
 from avbroadcast import __version__
-
 from avbroadcast.core import InputStream, RtmpHlsPipeline
 from avbroadcast.util import make_progress_filename, normalize_options, boot_logging
 from avbroadcast.watch import watch_filesystem
@@ -63,22 +61,28 @@ def run():
     boot_logging(options)
 
     # Report about runtime options.
-    logger.info(options)
+    logger.info('Options: %s', options)
 
-    # tmux new -s toptop 'htop' \; split-window 'iotop' \; select-layout even-horizontal
-    # tmux attach -t avb \; split-window htop --delay=3 \; split-window -h glances --time=0.3
-    # select-pane -t0
+    # TODO: Fix "open terminal failed: not a terminal" on k8s.
     if options['tmux']:
         real = list(sys.argv)
         real.remove('--tmux')
         real_command = ' '.join(real)
         #print(real_command)
-        #tmux_command = "tmux -2 new-session -s avb \; new-window -t avb '{}'".format(real_command)
+
+        # select-layout even-horizontal
         tmux_command = "tmux new-session -s avb '{}'".format(real_command)
 
         if options['analyze']:
-            tmux_command += ' \; split-window htop --delay=3 \; split-window -h glances --time=0.3'
-            tmux_command += ' \; select-pane -t0 \; split-window -h avbroadcast watch --path=/var/spool/hls-local'
+
+            # Add system performance metrics tools.
+            # TODO: Add iotop. However, this does not work on k8s?
+            tmux_command += " \; split-window 'htop --delay=3' \; split-window -h 'glances --percpu --time=1.5'"
+
+            # Add file watcher if output target is a local directory.
+            if options['target']:
+                tmux_command += " \; select-pane -t0" \
+                                " \; split-window -h 'avbroadcast watch --path={}'".format(options['target'])
 
         print(tmux_command)
         os.system(tmux_command)
@@ -97,9 +101,5 @@ def run():
         pipeline.publish(options['name'], int(options['base-port']), options['target'])
 
     if options['watch']:
-        # TODO: Propagate resolutions and interval
+        # TODO: Propagate renditions and interval.
         watch_filesystem(options['path'])
-
-    #if options['add-watch']:
-    #    # TODO: Propagate resolutions and interval
-    #    watch_filesystem(options['target'], clear_screen=False)
