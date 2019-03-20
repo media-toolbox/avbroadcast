@@ -15,7 +15,7 @@ FROM ffmpeg-runtime AS avbroadcast-analyzer
 
 # Install performance analysis tools.
 RUN apt-get update
-RUN apt-get install -y stress htop iotop tmux glances
+RUN apt-get install -y stress htop iotop tmux glances psmisc
 
 
 # =============
