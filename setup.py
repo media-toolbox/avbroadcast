@@ -45,7 +45,7 @@ setup(name='avbroadcast',
       ],
       author='Andreas Motl',
       author_email='andreas.motl@elmyra.de',
-      url='https://github.com/daq-tools/avbroadcast',
+      url='https://github.com/media-tools/avbroadcast',
       keywords='audio video broadcast rtmp hls http ' +
                '',
       packages=find_packages(),

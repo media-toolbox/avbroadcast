@@ -4,8 +4,8 @@
 .. image:: https://img.shields.io/pypi/v/avbroadcast.svg
     :target: https://pypi.org/project/avbroadcast/
 
-.. image:: https://img.shields.io/github/tag/daq-tools/avbroadcast.svg
-    :target: https://github.com/daq-tools/avbroadcast
+.. image:: https://img.shields.io/github/tag/media-toolbox/avbroadcast.svg
+    :target: https://github.com/media-toolbox/avbroadcast
 
 |
 
@@ -21,6 +21,12 @@ About
 ``avbroadcast`` republishes media streams for mass consumption.
 It is a wrapper around the fine ffmpeg_ and packager_ programs,
 so it is standing on the shoulders of giants.
+
+
+Goals
+=====
+-
+
 
 .. _ffmpeg: https://ffmpeg.org/
 .. _packager: https://github.com/google/shaka-packager/
@@ -53,7 +59,7 @@ If you know your way around Python, installing this software is really easy::
 
 Please refer to the `virtualenv`_ page about further guidelines how to install and use this software.
 
-.. _virtualenv: https://github.com/daq-tools/avbroadcast/blob/master/doc/virtualenv.rst
+.. _virtualenv: https://github.com/media-toolbox/avbroadcast/blob/master/doc/virtualenv.rst
 
 
 Usage
@@ -88,17 +94,17 @@ Watch output directory::
 
 Usage with Docker
 =================
-Build Docker image ``mediatools/avbroadcast:analyzer``::
+Build Docker image ``mediatoolbox/avbroadcast:analyzer``::
 
     build-docker-image
 
 ::
 
     # Use avbroadcast shipped with Docker image.
-    alias avbroadcast='docker run --name avb --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+    alias avbroadcast='docker run --name avb --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
 
     # Use avbroadcast from working tree.
-    #alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer avbroadcast'
+    #alias avbroadcast='docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
 
 Run in Docker container::
 
@@ -115,6 +121,10 @@ Usage with tmux
 
     avbroadcast ... --tmux --analyze
 
+Attach to tmux::
+
+    tmux attach
+
 Detach from tmux::
 
     CTRL+B, D
@@ -125,7 +135,7 @@ Detach from tmux::
 Project information
 *******************
 ``avbroadcast`` is released under the terms of the GNU AGPL 3.0 license.
-The code and documentation live on `GitHub <https://github.com/daq-tools/avbroadcast>`_,
+The code and documentation live on `GitHub <https://github.com/media-toolbox/avbroadcast>`_,
 the Python package is published to `PyPI <https://pypi.org/project/avbroadcast/>`_.
 
 The software has been tested on Python 3.5 and Python 3.7.
@@ -148,7 +158,7 @@ Use of the source code included here is governed by the
 `GNU Affero General Public License <GNU-AGPL-3.0_>`_ and the
 `European Union Public License <EUPL-1.2_>`_.
 
-.. _GNU-AGPL-3.0: https://github.com/daq-tools/avbroadcast/blob/master/LICENSE
+.. _GNU-AGPL-3.0: https://github.com/media-toolbox/avbroadcast/blob/master/LICENSE
 .. _EUPL-1.2: https://opensource.org/licenses/EUPL-1.1
 
 

@@ -53,14 +53,13 @@ docs-html: setup-docs
 # ------
 
 build-docker-image:
-	docker build --build-arg BASE_IMAGE=avbroadcast-analyzer --tag mediatools/avbroadcast:analyzer .
+	docker build --build-arg BASE_IMAGE=avbroadcast-analyzer --tag mediatoolbox/avbroadcast:analyzer .
 
 publish-docker-image:
-	docker tag mediatools/avbroadcast:analyzer elmyra/avbroadcast:analyzer
-	docker push elmyra/avbroadcast:analyzer
+	docker push mediatoolbox/avbroadcast:analyzer
 
 run-docker-container:
-	docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatools/avbroadcast:analyzer /bin/bash
+	docker run --name avb --volume `pwd`:/avbroadcast --interactive --tty --rm mediatoolbox/avbroadcast:analyzer /bin/bash
 
 enter-docker-container:
 	docker exec --interactive --tty avb /bin/bash
