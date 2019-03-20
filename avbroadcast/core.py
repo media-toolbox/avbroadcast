@@ -20,6 +20,11 @@ class RtmpHlsPipeline:
             'address': 'udp://127.0.0.1:{port}',
         },
         {
+            'resolution': 144,
+            'ffmpeg_bandwidth': '-b:v  100k -maxrate  150k -bufsize  120k',
+            'address': 'udp://127.0.0.1:{port}',
+        },
+        {
             'resolution': 240,
             'ffmpeg_bandwidth': '-b:v  450k -maxrate  675k -bufsize  540k',
             'address': 'udp://127.0.0.1:{port}',
