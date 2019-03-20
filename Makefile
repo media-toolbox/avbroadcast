@@ -30,7 +30,7 @@ sdist:
 	$(python) setup.py sdist
 
 upload:
-	$(twine) upload --skip-existing dist/*.tar.gz
+	twine upload --skip-existing dist/*.tar.gz
 
 # make release bump=minor  (major,minor,patch)
 release: setup-release bumpversion push sdist upload
