@@ -65,7 +65,7 @@ def run():
 
     # Report about runtime options.
     logger.info('=' * 42)
-    logger.info('LIVE')
+    logger.info('avbroadcast %s', __version__)
     logger.info('=' * 42)
     logger.info('Options: %s', options)
     logger.info('Command: %s', ' '.join(list(sys.argv)))
