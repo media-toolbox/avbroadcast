@@ -20,7 +20,7 @@ def run():
     Usage:
         {program} ingest --stream=<stream> [--base-port=<base-port>] [--verbose]
         {program} publish --name=<name> [--base-port=<base-port>] --target=<target> [--verbose]
-        {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose] [--tmux] [--analyze]
+        {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose] [--tmux] [--attach] [--analyze]
         {program} watch --path=<path>
         {program} info
         {program} --version
@@ -30,6 +30,9 @@ def run():
         --base-port=<base-port>     Use this port as a baseline for forwarding the first UDP stream.
                                     [default: 50000]
         --verbose                   Increase verbosity
+        --tmux                      Run inside tmux session
+        --attach                    Attach to tmux session immediately
+        --analyze                   Run more analyzers in tmux window
 
     Examples:
 
@@ -62,30 +65,10 @@ def run():
 
     # Report about runtime options.
     logger.info('Options: %s', options)
+    logger.info('Command: %s', ' '.join(list(sys.argv)))
 
-    # TODO: Fix "open terminal failed: not a terminal" on k8s.
     if options['tmux']:
-        real = list(sys.argv)
-        real.remove('--tmux')
-        real_command = ' '.join(real)
-        #print(real_command)
-
-        # select-layout even-horizontal
-        tmux_command = "tmux new-session -s avb '{}'".format(real_command)
-
-        if options['analyze']:
-
-            # Add system performance metrics tools.
-            # TODO: Add iotop. However, this does not work on k8s?
-            tmux_command += " \; split-window 'htop --delay=3' \; split-window -h 'glances --percpu --time=1.5'"
-
-            # Add file watcher if output target is a local directory.
-            if options['target']:
-                tmux_command += " \; select-pane -t0" \
-                                " \; split-window -h 'avbroadcast watch --path={}'".format(options['target'])
-
-        print(tmux_command)
-        os.system(tmux_command)
+        run_tmux(options)
         return
 
     # Dispatch to core methods.
@@ -103,3 +86,58 @@ def run():
     if options['watch']:
         # TODO: Propagate renditions and interval.
         watch_filesystem(options['path'])
+
+
+def run_tmux(options):
+    """Run transcoder in tmux, optionally with instrumentation."""
+
+    # Compute commandline of program invocation w/o "--tmux" parameter.
+    real = list(sys.argv)
+    real.remove('--tmux')
+    real_command = ' '.join(real)
+
+    # Wrap command into tmux command.
+    # TODO: Just use "-d" for detach when running with "--background"
+    tmux_command = "tmux new-session -d -s avb '{}'".format(real_command)
+
+    if options['analyze']:
+
+        # Add system performance metrics tools.
+        # TODO: Add iotop. However, this does not work on k8s?
+        # select-layout even-horizontal
+        tmux_command += " \; split-window 'htop --delay=3' \; split-window -h 'glances --percpu --time=1.5'"
+
+        # Add file watcher if output target is a local directory.
+        if options['target']:
+            tmux_command += " \; select-pane -t0" \
+                            " \; split-window -h 'avbroadcast watch --path={}'".format(options['target'])
+
+    logger.info('tmux command: %s', tmux_command)
+    os.system(tmux_command)
+
+    # Attach to tmux session right away.
+    # When running this on Docker, this will kill the container when detaching
+    # from it, as we've previously exec'd into here, so we just are PID 1.
+    # Remark: This will only work when having a TTY in place.
+    # TODO: Just use when running with "--attach"
+    if options['attach']:
+        os.system('tmux attach -t avb')
+
+    # Use "--keepalive" parameter here to keep the container alive even without
+    # attaching immediately.
+    # TODO: Just use when running with "--background" and without "--attach"?
+    # TODO: How to escape from here? Actually, this should be bound to the aliveness
+    # of the workhorse programs, right?
+
+    # TODO: Display activity somehow.
+    print
+    print
+    print('Transcoder is running. Will wait forever here.')
+    print('Run "tmux attach -t avb" on a different shell to attach to tmux session.')
+    print('Exit transcoder by typing CTRL+C.')
+    wait_forever()
+
+
+def wait_forever():
+    from threading import Event
+    Event().wait()
