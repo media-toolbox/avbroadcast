@@ -5,6 +5,9 @@ ARG BASE_IMAGE
 # ==============
 FROM jrottenberg/ffmpeg:4.0-ubuntu AS ffmpeg-runtime
 
+RUN apt-get update
+RUN apt-get install -y psmisc lsof inotify-tools curl
+
 
 # ==========================
 # Performance analysis image
@@ -14,8 +17,7 @@ FROM jrottenberg/ffmpeg:4.0-ubuntu AS ffmpeg-runtime
 FROM ffmpeg-runtime AS avbroadcast-analyzer
 
 # Install performance analysis tools.
-# TODO: Add "psmisc" here, maybe also "python3" and "python3-pip"?
-RUN apt-get update
+RUN apt-get install -y wget httpie jq vim nano
 RUN apt-get install -y stress htop iotop tmux glances
 
 
@@ -31,10 +33,9 @@ LABEL description="Republish media streams for mass consumption using ffmpeg and
 # Downlad URL to custom Shaka Packager.
 ARG SHAKA_PACKAGER_DOWNLOAD_URL=https://packages.elmyra.de/3q/foss/packager-linux-http-upload
 
-
 # Regular runtime.
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip wget nano vim psmisc
+RUN apt-get install -y python3 python3-pip
 
 # Install Shaka Packager.
 RUN \
@@ -48,7 +49,7 @@ ENV LANG=C.UTF-8
 RUN pip3 install --upgrade pip
 RUN pip3 install avbroadcast
 
-#
+# Install tools.
 COPY tools/avbroadcast-upgrade.sh /boot/avbroadcast-upgrade
 COPY tools/docker-entrypoint.sh /boot/docker-entrypoint
 
