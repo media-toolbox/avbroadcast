@@ -6,7 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='avbroadcast',
-      version='0.7.0',
+      version='0.8.0-dev1',
       description='avbroadcast - republish media streams for mass consumption',
       long_description=README,
       license="AGPL 3, EUPL 1.2",
