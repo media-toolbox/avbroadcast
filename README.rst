@@ -95,7 +95,7 @@ Build Docker image ``"mediatoolbox/avbroadcast:analyzer"``::
 You might want to skip this step as Docker images are already available
 at https://hub.docker.com/r/mediatoolbox/avbroadcast
 
-Make alias for easy usage::
+Make alias for easy access::
 
     # Use avbroadcast shipped with Docker image.
     alias avbroadcast='docker run --name avb --interactive --tty --rm mediatoolbox/avbroadcast:analyzer avbroadcast'
@@ -118,9 +118,9 @@ Usage with tmux
 
     avbroadcast ... --tmux --analyze
 
-Attach to tmux::
+Attach to Docker container and tmux manager at once::
 
-    tmux attach
+    docker exec -it avb tmux attach -t avb
 
 Quit pipeline either by detaching from ``tmux``::
 
