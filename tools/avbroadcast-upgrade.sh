@@ -9,7 +9,7 @@ echo "Hello avbroadcast"
 # Upgrade from Git repository
 test "$1" = "git" && (
     echo "Upgrading avbroadcast from git repository"
-    git clone --depth=1 https://github.com/media-toolkit/avbroadcast /avbroadcast
+    git clone --depth=1 https://github.com/media-toolbox/avbroadcast.git /avbroadcast
     cd /avbroadcast
     python3 setup.py install
 ) && exit
