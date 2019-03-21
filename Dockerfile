@@ -34,8 +34,7 @@ LABEL description="Republish media streams for mass consumption using ffmpeg and
 ARG SHAKA_PACKAGER_DOWNLOAD_URL=https://packages.elmyra.de/3q/foss/packager-linux-http-upload
 
 # Regular runtime.
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y python3 python3-pip git
 
 # Install Shaka Packager.
 RUN \
