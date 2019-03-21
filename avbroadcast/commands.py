@@ -64,6 +64,9 @@ def run():
     boot_logging(options)
 
     # Report about runtime options.
+    logger.info('=' * 42)
+    logger.info('LIVE')
+    logger.info('=' * 42)
     logger.info('Options: %s', options)
     logger.info('Command: %s', ' '.join(list(sys.argv)))
 
