@@ -3,12 +3,17 @@
 # (c) 2018-2019 Andreas Motl <andreas.motl@elmyra.de>
 import os
 import sys
+import time
+import json
 import logging
+from urllib.parse import urljoin
+
 from docopt import docopt
+from tabulate import tabulate
 from avbroadcast import __version__
 from avbroadcast.core import InputStream, RtmpHlsPipeline
 from avbroadcast.util import make_progress_filename, normalize_options, boot_logging
-from avbroadcast.watch import watch_filesystem
+from avbroadcast.hls import HLSInfo
 
 logger = logging.getLogger(__name__)
 
@@ -21,18 +26,21 @@ def run():
         {program} ingest --stream=<stream> [--base-port=<base-port>] [--verbose]
         {program} publish --name=<name> [--base-port=<base-port>] --target=<target> [--verbose]
         {program} io --name=<name> --stream=<stream> --target=<target> [--base-port=<base-port>] [--verbose] [--tmux] [--attach] [--analyze]
-        {program} watch --path=<path>
+        {program} hls-info <uri> [--compact] [--format=<format>] [--follow|--watch] [--time=<time>]
         {program} info
         {program} --version
         {program} (-h | --help)
 
     Options:
-        --base-port=<base-port>     Use this port as a baseline for forwarding the first UDP stream.
-                                    [default: 50000]
+        --base-port=<base-port>     Use this port as a baseline for forwarding the first UDP stream. [default: 50000]
         --verbose                   Increase verbosity
         --tmux                      Run inside tmux session
         --attach                    Attach to tmux session immediately
         --analyze                   Run more analyzers in tmux window
+        --format=<format>           Output format [default: table]
+        --tail                      Only display most recent segment of each rendition
+        --watch                     Run hls-info continuously
+        --time=<time>               Use interval for running hls-info [default: 1.0]
 
     Examples:
 
@@ -53,10 +61,11 @@ def run():
     # Use generic commandline options schema and amend with current program name.
     commandline_schema = run.__doc__.format(program=APP_NAME)
 
-    d = docopt(commandline_schema, version=APP_NAME + ' ' + __version__)
+    # Full application name.
+    app_fullname = APP_NAME + ' ' + __version__
 
     # Read commandline options.
-    options = normalize_options(docopt(commandline_schema, version=APP_NAME + ' ' + __version__))
+    options = normalize_options(docopt(commandline_schema, version=app_fullname))
 
     # Start logging subsystem.
     if options['verbose']:
@@ -65,7 +74,7 @@ def run():
 
     # Report about runtime options.
     logger.info('=' * 42)
-    logger.info('avbroadcast %s', __version__)
+    logger.info('Starting %s', app_fullname)
     logger.info('=' * 42)
     logger.info('Options: %s', options)
     logger.info('Command: %s', ' '.join(list(sys.argv)))
@@ -86,9 +95,46 @@ def run():
         pipeline.ingest(options['stream'], int(options['base-port']))
         pipeline.publish(options['name'], int(options['base-port']), options['target'])
 
-    if options['watch']:
-        # TODO: Propagate renditions and interval.
-        watch_filesystem(options['path'])
+    if options['hls-info']:
+        if options['follow'] or options['watch']:
+            while True:
+                interval = float(options['time'])
+                msg = 'Scanning {uri} each {interval} seconds.'.format(uri=options['uri'], interval=interval)
+                logger.info(msg)
+                try:
+                    outcome = run_hlsinfo(options)
+                    if options['watch']:
+                        os.system('clear')
+                        logger.info(msg)
+                    print(outcome)
+
+                except Exception as ex:
+                    logger.warning('Problem: %s', ex)
+
+                time.sleep(interval)
+        else:
+            outcome = run_hlsinfo(options)
+            print(outcome)
+
+
+def run_hlsinfo(options):
+    hls_info = HLSInfo(options['uri'])
+
+    if options['format'] == 'json':
+        outcome = hls_info.get_info()
+        outcome = json.dumps(outcome, indent=4)
+    elif options['format'] == 'table':
+        if options['compact']:
+            outcome = hls_info.get_status_compact()
+        else:
+            outcome = hls_info.get_status()
+        #outcome = tabulate(outcome, headers="keys", tablefmt="simple")
+        outcome = tabulate(outcome, headers="keys", tablefmt="github")
+        #outcome = tabulate(outcome, headers="keys", tablefmt="grid")
+    else:
+        raise ValueError('Unknown output format "{}"'.format(options['format']))
+
+    return outcome
 
 
 def run_tmux(options):
@@ -101,7 +147,7 @@ def run_tmux(options):
 
     # Wrap command into tmux command.
     # TODO: Just use "-d" for detach when running with "--background"
-    tmux_command = "tmux new-session -d -s avb '{}'".format(real_command)
+    tmux_command = "tmux new-session -d -s avb '{}; read'".format(real_command)
 
     if options['analyze']:
 
@@ -110,10 +156,11 @@ def run_tmux(options):
         # select-layout even-horizontal
         tmux_command += " \; split-window 'htop --delay=3' \; split-window -h 'glances --percpu --time=1.5'"
 
-        # Add file watcher if output target is a local directory.
+        # Add file watcher.
         if options['target']:
+            m3u8_uri = urljoin(options['target'] + '/', '{}.m3u8'.format(options['name']))
             tmux_command += " \; select-pane -t0" \
-                            " \; split-window -h 'avbroadcast watch --path={}'".format(options['target'])
+                            " \; split-window -h 'avbroadcast hls-info {} --format=table --compact --watch; read'".format(m3u8_uri)
 
     logger.info('tmux command: %s', tmux_command)
     os.system(tmux_command)

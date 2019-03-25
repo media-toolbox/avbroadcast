@@ -56,6 +56,8 @@ setup(name='avbroadcast',
       test_suite='avbroadcast.test',
       install_requires=[
           'docopt==0.6.2',
+          'm3u8==0.3.7',
+          'tabulate==0.8.3',
       ],
       dependency_links=[
       ],
