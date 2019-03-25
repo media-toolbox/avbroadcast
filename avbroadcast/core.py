@@ -163,11 +163,11 @@ class OutputPackager:
     # TODO: Optionally add "--vmodule" options "buffer_writer=1", "master_playlist=1" and "packed_audio_writer=1"
 
     packager_audio_stream = """
-        "input={address}?reuse=1,stream=audio,segment_template={upload_url}/{name}-audio-$Number%04d$.aac,playlist_name={name}-audio.m3u8,hls_group_id=audio"
+        "input={address}?reuse=1,stream=audio,segment_template={upload_url}/{name}-audio-128k-$Number%04d$.aac,playlist_name={name}-audio-128k.m3u8,hls_group_id=audio"
     """
 
     packager_video_stream = """
-        "input={address}?reuse=1,stream=video,segment_template={upload_url}/{name}-video-{resolution}-$Number%04d$.ts,playlist_name={name}-video-{resolution}.m3u8"
+        "input={address}?reuse=1,stream=video,segment_template={upload_url}/{name}-video-{resolution:0>4}-$Number%04d$.ts,playlist_name={name}-video-{resolution:0>4}.m3u8"
     """
 
     newline_token = ' \\\n'
