@@ -16,8 +16,10 @@ RUN apt-get install -y psmisc lsof inotify-tools curl
 # Derive image from regular runtime image.
 FROM ffmpeg-runtime AS avbroadcast-analyzer
 
-# Install performance analysis tools.
+# Install common tools.
 RUN apt-get install -y wget httpie jq vim nano
+
+# Install performance analysis tools.
 RUN apt-get install -y stress htop iotop tmux glances
 
 

@@ -33,6 +33,13 @@ Prio 2
 - [o] Optionally resume pipeline commands after crashing
 - [o] Build ``mediatoolbox/avbroadcast:analyzer-edge`` which clones ``avbroadcast`` from
 - [o] Terminate pipeline on exit of element, eventually signalling a failed pod.
+- [o] Enable mouse in tmux
+- [o] Indicate pipeline is running when blocking with CTRL+C message on pipeline start
+- [o] Probe stream input before starting the pipeline
+  ``ffprobe rtmp://de-origin-live.3qsdn.com/live/_definst_/mp4:6028_KcqnH2R6hyLbT4M``
+- [o] Probe HLS output after starting the pipeline
+  ``ffprobe /var/spool/hls-local/3q-test.m3u8``
+
 
 Prio 3
 ======
@@ -55,6 +62,19 @@ Prio 3
 - [o] How do I access the Kubernetes api from within a pod container?
   https://stackoverflow.com/questions/30690186/how-do-i-access-the-kubernetes-api-from-within-a-pod-container/30739416#30739416
 
+::
+
+    [rtmp @ 0x1491940] Server error: Failed to play 6028_KcqnH2R6hyLbT4M; stream not found.                │
+    rtmp://de-origin-live.3qsdn.com/low/_definst_/mp4:6028_KcqnH2R6hyLbT4M: Operation not permitted        │
+    Exception in thread Thread-1:                                                                          │
+    Traceback (most recent call last):                                                                     │
+      File "/usr/lib/python3.5/threading.py", line 914, in _bootstrap_inner                                │
+        self.run()                                                                                         │
+      File "/usr/local/lib/python3.5/dist-packages/avbroadcast-0.7.1-py3.5.egg/avbroadcast/core.py", line 8│
+    5, in run                                                                                              │
+        logger.write(proc.stdout.read())                                                                   │
+    AttributeError: 'Logger' object has no attribute 'write'
+
 
 **********
 K8s on GKE
@@ -73,7 +93,9 @@ ffmpeg
   https://google.github.io/shaka-packager/html/tutorials/encoding.html
 - [o] Set ffmpeg ``buffer_size=`` argument on input source, see
   https://google.github.io/shaka-packager/html/tutorials/live.html#udp-file-options
-- [o] Use -tune xyz and -slice-threads
+- [o] Frame-based threading vs. sliced-threading:
+  https://stackoverflow.com/questions/33624016/why-sliced-thread-affect-so-much-on-realtime-encoding-using-ffmpeg-x264
+- [o] Use -tune xyz and --slice-threads
 
 ::
 
@@ -85,3 +107,10 @@ ffmpeg
 
     # Apply workload
     stress --cpu 4 --io 4 --timeout 60
+
+
+*************
+Documentation
+*************
+- https://tools.ietf.org/html/draft-pantos-http-live-streaming-20
+-

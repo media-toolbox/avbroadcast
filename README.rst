@@ -109,7 +109,7 @@ Pre-flight check::
 
 Attach to running transcoder::
 
-    docker exec -it avb /bin/bash
+    docker exec --interactive --tty avb /bin/bash
 
 
 Usage with tmux
@@ -120,7 +120,7 @@ Usage with tmux
 
 Attach to Docker container and tmux manager at once::
 
-    docker exec -it avb tmux attach -t avb
+    docker exec --interactive --tty avb tmux attach -t avb
 
 Quit pipeline either by detaching from ``tmux``::
 
