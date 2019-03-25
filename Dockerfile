@@ -6,7 +6,9 @@ ARG BASE_IMAGE
 FROM jrottenberg/ffmpeg:4.0-ubuntu AS ffmpeg-runtime
 
 RUN apt-get update
-RUN apt-get install -y psmisc lsof inotify-tools curl
+RUN apt-get install -y \
+    psmisc lsof inetutils-ping net-tools dnsutils \
+    inotify-tools curl
 
 
 # ==========================
