@@ -1,2 +1,2 @@
 # Intentionally left blank
-version = u'0.7.1'
+version = u'0.8.0'
